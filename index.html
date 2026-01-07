@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Randomizer</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function TeamRandomizer() {
+          const [peopleInput, setPeopleInput] = useState('');
+          const [teamSize, setTeamSize] = useState(3);
+          const [teams, setTeams] = useState([]);
+
+          const shuffleArray = (array) => {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+          };
+
+          const generateTeams = () => {
+            const people = peopleInput
+              .split('\n')
+              .map(name => name.trim())
+              .filter(name => name.length > 0);
+
+            if (people.length === 0) {
+              alert('Please enter at least one person');
+              return;
+            }
+
+            if (teamSize < 1) {
+              alert('Team size must be at least 1');
+              return;
+            }
+
+            const shuffled = shuffleArray(people);
+            const newTeams = [];
+            
+            for (let i = 0; i < shuffled.length; i += teamSize) {
+              newTeams.push(shuffled.slice(i, i + teamSize));
+            }
+
+            setTeams(newTeams);
+          };
+
+          return (
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
+              <div className="max-w-2xl mx-auto">
+                <div className="bg-white rounded-2xl shadow-xl p-8">
+                  <h1 className="text-3xl font-bold text-gray-800 mb-2">Team Randomizer</h1>
+                  <p className="text-gray-600 mb-6">Enter names and divide them into random teams</p>
+
+                  <div className="space-y-4 mb-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        People (one per line)
+                      </label>
+                      <textarea
+                        value={peopleInput}
+                        onChange={(e) => setPeopleInput(e.target.value)}
+                        placeholder="Alice&#10;Bob&#10;Charlie&#10;Diana&#10;Eve&#10;Frank"
+                        className="w-full h-40 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Team Size
+                      </label>
+                      <input
+                        type="number"
+                        value={teamSize}
+                        onChange={(e) => setTeamSize(parseInt(e.target.value) || 1)}
+                        min="1"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <button
+                      onClick={generateTeams}
+                      className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                    >
+                      Generate Teams
+                    </button>
+                  </div>
+
+                  {teams.length > 0 && (
+                    <div className="space-y-4">
+                      <h2 className="text-xl font-semibold text-gray-800">Your Teams</h2>
+                      <div className="grid gap-4">
+                        {teams.map((team, index) => (
+                          <div key={index} className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-4 border border-indigo-200">
+                            <h3 className="font-semibold text-indigo-900 mb-2">
+                              Team {index + 1} ({team.length} {team.length === 1 ? 'person' : 'people'})
+                            </h3>
+                            <ul className="space-y-1">
+                              {team.map((person, pIndex) => (
+                                <li key={pIndex} className="text-gray-700 flex items-center">
+                                  <span className="w-2 h-2 bg-indigo-400 rounded-full mr-2"></span>
+                                  {person}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<TeamRandomizer />);
+    </script>
+</body>
+</html>
